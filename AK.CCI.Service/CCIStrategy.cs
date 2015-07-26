@@ -26,8 +26,10 @@ namespace AK.CCI.Service
 		protected ManualResetEvent PortfolioFoundEvent = new ManualResetEvent(false);
 		protected ManualResetEvent SecurityFoundEvent = new ManualResetEvent(false);
 
+		private long _processedCandlesCount = 0;
+
 		[Inject]
-		public CommodityChannelIndex Indicator { get; private set; }
+		public CommodityChannelIndexExtended Indicator { get; set; }
 
 		public CCIStrategy(IConnectionManager connectionManager, IStrategyConfiguration strategyConfiguration)
 		{
@@ -95,8 +97,6 @@ namespace AK.CCI.Service
 
 		protected override void OnStarted()
 		{
-			base.OnStarted();
-
 			Log.Info("Waiting for TraderConnected event.");
 			_connectionManager.TraderConnectedEvent.WaitOne();
 
@@ -114,6 +114,7 @@ namespace AK.CCI.Service
 			Volume = _strategyConfiguration.Volume;
 
 			Indicator.Length = _strategyConfiguration.IndicatorLength;
+			Indicator.BarCrossed += IndicatorOnBarCrossed;
 
 			var series = new CandleSeries(typeof (TimeFrameCandle), _security, _strategyConfiguration.CandleTimeFrame);
 
@@ -123,11 +124,18 @@ namespace AK.CCI.Service
 				.Apply(this);
 
 			_connectionManager.CandleManager.Start(series);
+
+			base.OnStarted();
+		}
+
+		protected override void OnError(Exception error)
+		{
+			Log.Error(error);
+			base.OnError(error);
 		}
 
 		private void ProcessCandle(Candle candle)
 		{
-			Log.Info("New candle registred.");
 			if (ProcessState == ProcessStates.Stopping)
 			{
 				CancelActiveOrders();
@@ -135,6 +143,15 @@ namespace AK.CCI.Service
 			}
 
 			Indicator.Process(candle);
+
+			_processedCandlesCount++;
+			Log.InfoFormat("_processedCandlesCount {0}", _processedCandlesCount);
+
+		}
+
+		private void IndicatorOnBarCrossed(object sender, BarCrossedEventArgs barCrossedEventArgs)
+		{
+			Log.InfoFormat("IndicatorOnBarCrossed {0} (Prev: {1}, Last: {2})", barCrossedEventArgs.Side, barCrossedEventArgs.PrevIndicatorValue, barCrossedEventArgs.LastIndicatorValue);
 		}
 	}
 }

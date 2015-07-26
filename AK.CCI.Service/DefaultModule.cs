@@ -8,6 +8,8 @@ namespace AK.CCI.Service
 		{
 			Bind<IConfiguration>().To<Configuration>().InSingletonScope();
 			Bind<IStrategyManager>().To<StrategyManager>().InSingletonScope();
+
+			//Bind<IConnectionManager>().To<EmulationConnectionManager>().InSingletonScope();
 			Bind<IConnectionManager>().To<QuikConnectionManager>().InSingletonScope();
 
 			Bind<IStrategy>().To<CCIStrategy>();

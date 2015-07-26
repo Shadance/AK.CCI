@@ -4,7 +4,7 @@ namespace AK.CCI.Service
 {
 	class StrategyConfiguration : IStrategyConfiguration
 	{
-		public string SecurityCode => "siu5";
+		public string SecurityCode => "SIU5";
 
 		public TimeSpan CandleTimeFrame => TimeSpan.FromMinutes(1);
 		public string PortfolioName => "SOMETHING";

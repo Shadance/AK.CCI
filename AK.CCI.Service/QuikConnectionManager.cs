@@ -21,7 +21,7 @@ namespace AK.CCI.Service
 
 		public ManualResetEvent TraderConnectedEvent { get; } = new ManualResetEvent(false);
 
-		public QuikTrader Trader
+		public IConnector Trader
 		{
 			get
 			{
@@ -36,10 +36,11 @@ namespace AK.CCI.Service
 
 					_trader.Connected += () => TraderConnectedEvent.Set();
 					_trader.Restored += () => Log.Info("Trader.Restored");
-					_trader.ConnectionError += error => Log.Info("Trader.ConnectionError", error);
-					_trader.Error += error => Log.Info("Trader.Error", error);
-					_trader.MarketDataSubscriptionFailed += (security, type, error) => Log.Info("Trader.MarketDataSubscriptionFailed", error);
 					_trader.NewSecurities += securities => Log.Info("Trader.NewSecurities");
+
+					_trader.ConnectionError += error => Log.Error("Trader.ConnectionError", error);
+					_trader.Error += error => Log.Error("Trader.Error", error);
+					_trader.MarketDataSubscriptionFailed += (security, type, error) => Log.Error("Trader.MarketDataSubscriptionFailed", error);
 
 					_trader.Connect();
 				}
@@ -50,7 +51,17 @@ namespace AK.CCI.Service
 
 		public CandleManager CandleManager
 		{
-			get { return _candleManager ?? (_candleManager = new CandleManager(_trader)); }
+			get
+			{
+				if (_candleManager == null)
+				{
+					_candleManager = new CandleManager(_trader);
+
+					_candleManager.Error += exception => Log.Error("CandleManager.Error", exception);
+				}
+
+				return _candleManager;
+			}
 		}
 
 		public QuikConnectionManager(IConfiguration configuration)
