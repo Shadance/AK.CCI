@@ -17,7 +17,7 @@ namespace AK.CCI.Service
 		private static readonly ILog Log = LogManager.GetLogger("AK.CCI.Service");
 		private readonly IConfiguration _configuration;
 
-		private IStrategy[] _strategies;
+		private readonly IStrategy[] _strategies;
 
 		public StrategyManager(IConfiguration configuration,
 			IStrategy[] strategies)
