@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security;
 using System.Threading;
+using AK.CCI.Service.Settings;
 using Ecng.Common;
 using log4net;
 using StockSharp.Algo.Candles;
+using StockSharp.Algo.Candles.Compression;
 using StockSharp.BusinessEntities;
 using StockSharp.Quik;
 
@@ -36,7 +38,7 @@ namespace AK.CCI.Service
 
 					_trader.Connected += () => TraderConnectedEvent.Set();
 					_trader.Restored += () => Log.Info("Trader.Restored");
-					_trader.NewSecurities += securities => Log.Info("Trader.NewSecurities");
+					//_trader.NewSecurities += securities => Log.Info("Trader.NewSecurities");
 
 					_trader.ConnectionError += error => Log.Error("Trader.ConnectionError", error);
 					_trader.Error += error => Log.Error("Trader.Error", error);
@@ -56,7 +58,6 @@ namespace AK.CCI.Service
 				if (_candleManager == null)
 				{
 					_candleManager = new CandleManager(_trader);
-
 					_candleManager.Error += exception => Log.Error("CandleManager.Error", exception);
 				}
 

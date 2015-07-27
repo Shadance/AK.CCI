@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AK.CCI.Service.Indicators;
+using AK.CCI.Service.Settings;
 using log4net;
 using Ninject;
 using StockSharp.Algo;
@@ -110,6 +112,8 @@ namespace AK.CCI.Service
 			Log.Info("Waiting for SecurityFound event.");
 			SecurityFoundEvent.WaitOne();
 
+			Log.Info("Configuring CCIStrategy.");
+
 			Security = _security;
 			Volume = _strategyConfiguration.Volume;
 
@@ -117,13 +121,12 @@ namespace AK.CCI.Service
 			Indicator.BarCrossed += IndicatorOnBarCrossed;
 
 			var series = new CandleSeries(typeof (TimeFrameCandle), _security, _strategyConfiguration.CandleTimeFrame);
+			_connectionManager.CandleManager.Start(series);
 
 			series
 				.WhenCandlesFinished()
 				.Do(ProcessCandle)
 				.Apply(this);
-
-			_connectionManager.CandleManager.Start(series);
 
 			base.OnStarted();
 		}
@@ -138,15 +141,20 @@ namespace AK.CCI.Service
 		{
 			if (ProcessState == ProcessStates.Stopping)
 			{
-				CancelActiveOrders();
+				//CancelActiveOrders();
 				return;
 			}
 
 			Indicator.Process(candle);
 
-			_processedCandlesCount++;
-			Log.InfoFormat("_processedCandlesCount {0}", _processedCandlesCount);
+			if (Indicator.IsFormed)
+			{
+				Log.DebugFormat("Indicator.GetCurrentValue {0}", Indicator.GetCurrentValue());
+			}
 
+			_processedCandlesCount++;
+			Log.DebugFormat("_processedCandlesCount {0}", _processedCandlesCount);
+			Log.DebugFormat("candle {0}", candle);
 		}
 
 		private void IndicatorOnBarCrossed(object sender, BarCrossedEventArgs barCrossedEventArgs)

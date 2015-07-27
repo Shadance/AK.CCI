@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Security;
 using System.Threading;
+using AK.CCI.Service.Settings;
 using Ecng.Common;
 using log4net;
 using StockSharp.Algo;

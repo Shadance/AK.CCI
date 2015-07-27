@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Security;
+using AK.CCI.Service.Settings;
 using Ecng.Common;
 using log4net;
 using StockSharp.Algo.Candles;

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Security.Cryptography.X509Certificates;
 
-namespace AK.CCI.Service
+namespace AK.CCI.Service.Settings
 {
 	public interface IStrategyConfiguration
 	{

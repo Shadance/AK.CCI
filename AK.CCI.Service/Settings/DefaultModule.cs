@@ -1,6 +1,6 @@
 ﻿using Ninject.Modules;
 
-namespace AK.CCI.Service
+namespace AK.CCI.Service.Settings
 {
 	public class DefaultModule : NinjectModule
 	{

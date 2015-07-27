@@ -1,4 +1,4 @@
-﻿namespace AK.CCI.Service
+﻿namespace AK.CCI.Service.Settings
 {
 	public interface IConfiguration
 	{

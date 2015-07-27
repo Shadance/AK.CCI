@@ -2,7 +2,7 @@ using System;
 using StockSharp.Algo.Indicators;
 using StockSharp.Messages;
 
-namespace AK.CCI.Service
+namespace AK.CCI.Service.Indicators
 {
 	public class BarCrossedEventArgs : EventArgs
 	{

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AK.CCI.Service
+namespace AK.CCI.Service.Settings
 {
 	class StrategyConfiguration : IStrategyConfiguration
 	{
