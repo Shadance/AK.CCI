@@ -9,8 +9,9 @@ namespace AK.CCI.Service.Settings
 			Bind<IConfiguration>().To<Configuration>().InSingletonScope();
 			Bind<IStrategyManager>().To<StrategyManager>().InSingletonScope();
 
-			//Bind<IConnectionManager>().To<EmulationConnectionManager>().InSingletonScope();
-			Bind<IConnectionManager>().To<QuikConnectionManager>().InSingletonScope();
+			//Bind<IConnectorManager>().To<RandConnectorManager>().InSingletonScope();
+			//Bind<IConnectorManager>().To<QuikConnectorManager>().InSingletonScope();
+			Bind<IConnectorManager>().To<QuikEmulationConnectorManager>().InSingletonScope();
 
 			Bind<IStrategy>().To<CCIStrategy>();
 			Bind<IStrategyConfiguration>().To<StrategyConfiguration>();

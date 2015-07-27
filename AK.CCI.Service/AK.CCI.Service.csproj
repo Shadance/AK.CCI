@@ -78,14 +78,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CCIStrategy.cs" />
-    <Compile Include="IConnectionManager.cs" />
+    <Compile Include="IConnectorManager.cs" />
     <Compile Include="Indicators\CommodityChannelIndexExtended.cs" />
     <Compile Include="IStrategy.cs" />
     <Compile Include="IStrategyManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EmulationConnectionManage.cs" />
-    <Compile Include="QuikConnectionManager.cs" />
+    <Compile Include="QuikConnectorManager.cs" />
     <Compile Include="Service.cs" />
     <Compile Include="Settings\Configuration.cs" />
     <Compile Include="Settings\DefaultModule.cs" />

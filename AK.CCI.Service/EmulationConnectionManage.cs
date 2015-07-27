@@ -17,7 +17,7 @@ using StockSharp.Quik;
 
 namespace AK.CCI.Service
 {
-	public class EmulationConnectionManager : IConnectionManager
+	public class RandConnectorManager : IConnectorManager
 	{
 		private static readonly ILog Log = LogManager.GetLogger("AK.CCI.Service");
 		private readonly IConfiguration _configuration;
@@ -128,7 +128,7 @@ namespace AK.CCI.Service
 			}
 		}
 
-		public EmulationConnectionManager(IConfiguration configuration)
+		public RandConnectorManager(IConfiguration configuration)
 		{
 			_configuration = configuration;
 		}

@@ -7,7 +7,7 @@ using StockSharp.Quik;
 
 namespace AK.CCI.Service
 {
-	public interface IConnectionManager
+	public interface IConnectorManager
 	{
 		ManualResetEvent TraderConnectedEvent { get; }
 		CandleManager CandleManager { get; }

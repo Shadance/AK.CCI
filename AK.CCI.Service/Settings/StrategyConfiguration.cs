@@ -9,6 +9,6 @@ namespace AK.CCI.Service.Settings
 		public TimeSpan CandleTimeFrame => TimeSpan.FromMinutes(1);
 		public string PortfolioName => "SOMETHING";
 		public decimal Volume => 1;
-		public int IndicatorLength => 14;
+		public int IndicatorLength => 5;
 	}
 }

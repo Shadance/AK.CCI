@@ -19,7 +19,7 @@ namespace AK.CCI.Service
 	public class CCIStrategy : Strategy, IStrategy
 	{
 		private static readonly ILog Log = LogManager.GetLogger("AK.CCI.Service");
-		private readonly IConnectionManager _connectionManager;
+		private readonly IConnectorManager _connectorManager;
 		private readonly IStrategyConfiguration _strategyConfiguration;
 
 		private Security _security;
@@ -33,12 +33,12 @@ namespace AK.CCI.Service
 		[Inject]
 		public CommodityChannelIndexExtended Indicator { get; set; }
 
-		public CCIStrategy(IConnectionManager connectionManager, IStrategyConfiguration strategyConfiguration)
+		public CCIStrategy(IConnectorManager connectorManager, IStrategyConfiguration strategyConfiguration)
 		{
-			_connectionManager = connectionManager;
+			_connectorManager = connectorManager;
 			_strategyConfiguration = strategyConfiguration;
 
-			var trader = _connectionManager.Trader;
+			var trader = _connectorManager.Trader;
 
 			if (_portfolio == null)
 			{
@@ -100,9 +100,9 @@ namespace AK.CCI.Service
 		protected override void OnStarted()
 		{
 			Log.Info("Waiting for TraderConnected event.");
-			_connectionManager.TraderConnectedEvent.WaitOne();
+			_connectorManager.TraderConnectedEvent.WaitOne();
 
-			Connector = _connectionManager.Trader;
+			Connector = _connectorManager.Trader;
 
 			Log.Info("Waiting for PortfolioFoundEvent event.");
 			PortfolioFoundEvent.WaitOne();
@@ -121,7 +121,7 @@ namespace AK.CCI.Service
 			Indicator.BarCrossed += IndicatorOnBarCrossed;
 
 			var series = new CandleSeries(typeof (TimeFrameCandle), _security, _strategyConfiguration.CandleTimeFrame);
-			_connectionManager.CandleManager.Start(series);
+			_connectorManager.CandleManager.Start(series);
 
 			series
 				.WhenCandlesFinished()
