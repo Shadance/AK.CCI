@@ -1,14 +1,27 @@
 ﻿using System;
+using System.Configuration;
 
 namespace AK.CCI.Service.Settings
 {
-	class StrategyConfiguration : IStrategyConfiguration
+	public class StrategyConfiguration : IStrategyConfiguration
 	{
-		public string SecurityCode => "SIU5";
+		public readonly StrategyConfigurationSection Section;
 
-		public TimeSpan CandleTimeFrame => TimeSpan.FromMinutes(1);
-		public string PortfolioName => "SOMETHING";
-		public decimal Volume => 1;
-		public int IndicatorLength => 5;
+		public StrategyConfiguration()
+		{
+			Section = (StrategyConfigurationSection)ConfigurationManager.GetSection("strategyConfiguration") ?? 
+				new StrategyConfigurationSection();
+		}
+
+		public string SecurityCode => Section.SecurityCode;
+		public TimeSpan CandleTimeFrame => Section.CandleTimeFrame;
+		public string PortfolioName => Section.PortfolioName;
+		public decimal Volume => Section.Volume;
+		public int IndicatorLength => Section.IndicatorLength;
+		public TimeSpan OrdersCheckInterval => Section.OrdersCheckInterval;
+		public TimeSpan OrderExpirationTimeSpan => Section.OrderExpirationTimeSpan;
+		public int StopLossLevel => Section.StopLossLevel;
+		public int TakeProfitLevel => Section.TakeProfitLevel;
+		public int TakeProfitOffset => Section.TakeProfitOffset;
 	}
 }

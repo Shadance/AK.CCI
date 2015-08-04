@@ -6,19 +6,26 @@ using System.Threading;
 using System.Threading.Tasks;
 using AK.CCI.Service.Indicators;
 using AK.CCI.Service.Settings;
+using Ecng.Collections;
 using log4net;
 using Ninject;
 using StockSharp.Algo;
 using StockSharp.Algo.Candles;
 using StockSharp.Algo.Indicators;
 using StockSharp.Algo.Strategies;
+using StockSharp.Algo.Strategies.Protective;
 using StockSharp.BusinessEntities;
+using StockSharp.Logging;
+using StockSharp.Messages;
+using StockSharp.Quik;
+using LogManager = log4net.LogManager;
 
 namespace AK.CCI.Service
 {
 	public class CCIStrategy : Strategy, IStrategy
 	{
-		private static readonly ILog Log = LogManager.GetLogger("AK.CCI.Service");
+		private static readonly ILog Logger = LogManager.GetLogger("AK.CCI.Service");
+
 		private readonly IConnectorManager _connectorManager;
 		private readonly IStrategyConfiguration _strategyConfiguration;
 
@@ -28,7 +35,7 @@ namespace AK.CCI.Service
 		protected ManualResetEvent PortfolioFoundEvent = new ManualResetEvent(false);
 		protected ManualResetEvent SecurityFoundEvent = new ManualResetEvent(false);
 
-		private long _processedCandlesCount = 0;
+		private Timer _ordersCheckTimer;
 
 		[Inject]
 		public CommodityChannelIndexExtended Indicator { get; set; }
@@ -77,6 +84,16 @@ namespace AK.CCI.Service
 					}
 				};
 			}
+
+			Log += OnLog;
+		}
+
+		private void OnLog(LogMessage message)
+		{
+			if (message.Level > LogLevels.Debug)
+			{
+				Logger.InfoFormat("[{0}] {1}", message.Source, message.Message);
+			}
 		}
 
 		private void LookupPortfolio(IEnumerable<Portfolio> portfolios)
@@ -99,32 +116,41 @@ namespace AK.CCI.Service
 
 		protected override void OnStarted()
 		{
-			Log.Info("Waiting for TraderConnected event.");
+			Logger.Info("Waiting for TraderConnected event.");
 			_connectorManager.TraderConnectedEvent.WaitOne();
 
 			Connector = _connectorManager.Trader;
 
-			Log.Info("Waiting for PortfolioFoundEvent event.");
+			Logger.Info("Waiting for PortfolioFoundEvent event.");
 			PortfolioFoundEvent.WaitOne();
 
 			Portfolio = _portfolio;
 
-			Log.Info("Waiting for SecurityFound event.");
+			Logger.Info("Waiting for SecurityFound event.");
 			SecurityFoundEvent.WaitOne();
 
-			Log.Info("Configuring CCIStrategy.");
+			Logger.Info("Configuring CCIStrategy.");
 
 			Security = _security;
 			Volume = _strategyConfiguration.Volume;
-
 			Indicator.Length = _strategyConfiguration.IndicatorLength;
-			Indicator.BarCrossed += IndicatorOnBarCrossed;
 
-			var series = new CandleSeries(typeof (TimeFrameCandle), _security, _strategyConfiguration.CandleTimeFrame);
+			_ordersCheckTimer = new Timer(CheckOrdersElapsed, null, 0, _strategyConfiguration.OrdersCheckInterval.Milliseconds);
+
+			var series = new CandleSeries(typeof(TimeFrameCandle), _security, _strategyConfiguration.CandleTimeFrame)
+			{
+				From = CurrentTime - TimeSpan.FromTicks(_strategyConfiguration.CandleTimeFrame.Ticks * _strategyConfiguration.IndicatorLength)
+			};
+
 			_connectorManager.CandleManager.Start(series);
 
 			series
 				.WhenCandlesFinished()
+				.Do(ProcessFinishedCandle)
+				.Apply(this);
+
+			series
+				.WhenCandlesChanged()
 				.Do(ProcessCandle)
 				.Apply(this);
 
@@ -133,33 +159,106 @@ namespace AK.CCI.Service
 
 		protected override void OnError(Exception error)
 		{
-			Log.Error(error);
+			Logger.Error(error);
 			base.OnError(error);
 		}
 
-		private void ProcessCandle(Candle candle)
+		protected virtual void CheckOrdersElapsed(object stateInfo)
 		{
-			if (ProcessState == ProcessStates.Stopping)
+			var now = this.CurrentTime;
+			foreach (var order in Orders.Where(o => o.IsMatchedEmpty()))
 			{
-				//CancelActiveOrders();
+				if (order.Time.Add(_strategyConfiguration.OrderExpirationTimeSpan) < CurrentTime)
+				{
+					CancelOrder(order);
+				}
+			}
+		}
+
+		protected virtual void ProcessFinishedCandle(Candle candle)
+		{
+			Indicator.Process(candle);
+
+			Logger.DebugFormat("Indicator.Container.Count {0}", Indicator.Container.Count);
+			if (Indicator.IsFormed)
+			{
+				Logger.DebugFormat("Indicator.GetCurrentValue {0}", Indicator.GetCurrentValue());
+			}
+
+			Logger.DebugFormat("Position {0}", Position);
+		}
+
+		protected virtual void ProcessCandle(Candle candle)
+		{
+			Indicator.Process(candle);
+
+			if (Indicator.IsBarCrossedOnLastValue == null)
+			{
 				return;
 			}
 
-			Indicator.Process(candle);
-
-			if (Indicator.IsFormed)
+			//Logger.WarnFormat("IndicatorOnBarCrossed {0} (Prev: {1}, Last: {2})", Indicator.IsBarCrossedOnLastValue.Side, Indicator.IsBarCrossedOnLastValue.PrevIndicatorValue, Indicator.IsBarCrossedOnLastValue.LastIndicatorValue);
+			if (Orders.Any(o => o.State == OrderStates.Active || o.State == OrderStates.Pending || o.State == OrderStates.None))
 			{
-				Log.DebugFormat("Indicator.GetCurrentValue {0}", Indicator.GetCurrentValue());
+				Logger.DebugFormat("Blocks Orders because: State");
+				return;
 			}
 
-			_processedCandlesCount++;
-			Log.DebugFormat("_processedCandlesCount {0}", _processedCandlesCount);
-			Log.DebugFormat("candle {0}", candle);
+			if (Orders.Any(o => o.Time.Add(_strategyConfiguration.CandleTimeFrame) > CurrentTime))
+			{
+				Logger.DebugFormat("Blocks Orders because: Last Order Time");
+				return;
+			}
+
+			var newOrder = Indicator.IsBarCrossedOnLastValue.Side == Sides.Buy
+				? this.BuyAtLimit(candle.ClosePrice)
+				: this.SellAtLimit(candle.ClosePrice);
+
+			Logger.WarnFormat("New Order: {0}", newOrder);
+
+			newOrder
+				.WhenNewTrades()
+				.Do(OnNewOrderTrades)
+				.Apply(this);
+
+			RegisterOrder(newOrder);
 		}
 
-		private void IndicatorOnBarCrossed(object sender, BarCrossedEventArgs barCrossedEventArgs)
+		protected virtual void OnNewOrderTrades(IEnumerable<MyTrade> trades)
 		{
-			Log.InfoFormat("IndicatorOnBarCrossed {0} (Prev: {1}, Last: {2})", barCrossedEventArgs.Side, barCrossedEventArgs.PrevIndicatorValue, barCrossedEventArgs.LastIndicatorValue);
+			foreach (var t in trades)
+			{
+				if (t.Order.Type == OrderTypes.Conditional)
+				{
+					continue;
+				}
+
+				var stopLossLevel = _strategyConfiguration.StopLossLevel;
+				var takeProfitLevel = _strategyConfiguration.TakeProfitLevel;
+				var takeProfitOffset = _strategyConfiguration.TakeProfitOffset;
+
+				var direction = (t.Order.Direction == Sides.Buy) ? Sides.Sell : Sides.Buy;
+
+				var order = new Order
+				{
+					Type = OrderTypes.Conditional,
+					Volume = t.Order.Volume,
+					//Price = stopLossLevel,
+					Direction = direction,
+					Security = t.Order.Security,
+					Condition = new QuikOrderCondition
+					{
+						Type = QuikOrderConditionTypes.TakeProfitStopLimit,
+						StopPrice = (direction == Sides.Sell) ? t.Order.Price + takeProfitLevel : t.Order.Price - takeProfitLevel,
+						StopLimitPrice = (direction == Sides.Sell) ? t.Order.Price - stopLossLevel : t.Order.Price + stopLossLevel,
+						Offset = takeProfitOffset,
+						IsMarketStopLimit = true,
+						IsMarketTakeProfit = true
+					}
+				};
+
+				RegisterOrder(order);
+			}
 		}
 	}
 }

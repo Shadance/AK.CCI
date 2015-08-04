@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using StockSharp.Algo.Indicators;
 using StockSharp.Messages;
 
@@ -17,25 +18,29 @@ namespace AK.CCI.Service.Indicators
 		private const decimal LBar = -100;
 
 		public event EventHandler<BarCrossedEventArgs> BarCrossed;
+		public BarCrossedEventArgs IsBarCrossedOnLastValue;
 
 		protected override IIndicatorValue OnProcess(IIndicatorValue input)
 		{
 			var result = base.OnProcess(input);
 
-			if (Container.Count > Length + 2)
+			IsBarCrossedOnLastValue = null;
+			if (Container.Count > Length)
 			{
-				var lastValue = this.GetValue(0);
-				var prevValue = this.GetValue(1);
+				var lastValue = result.GetValue<decimal>();
+				var prevValue = this.GetCurrentValue();
 
 				if (prevValue < LBar && lastValue > LBar)
 				{
-					OnBarCrossed(new BarCrossedEventArgs {Side = Sides.Buy, PrevIndicatorValue = prevValue, LastIndicatorValue = lastValue });
+					IsBarCrossedOnLastValue = new BarCrossedEventArgs { Side = Sides.Buy, PrevIndicatorValue = prevValue, LastIndicatorValue = lastValue };
+					OnBarCrossed(IsBarCrossedOnLastValue);
 				}
 				else
 				{
 					if (prevValue > HBar && lastValue < HBar)
 					{
-						OnBarCrossed(new BarCrossedEventArgs { Side = Sides.Sell, PrevIndicatorValue = prevValue, LastIndicatorValue = lastValue });
+						IsBarCrossedOnLastValue = new BarCrossedEventArgs { Side = Sides.Sell, PrevIndicatorValue = prevValue, LastIndicatorValue = lastValue };
+						OnBarCrossed(IsBarCrossedOnLastValue);
 					}
 				}
 			}
