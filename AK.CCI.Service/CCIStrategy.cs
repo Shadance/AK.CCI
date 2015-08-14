@@ -210,6 +210,13 @@ namespace AK.CCI.Service
 				return;
 			}
 
+			var whenCrossedZBar = Indicator.WhenCrossedZBar;
+            if (whenCrossedZBar > Indicator.Length)
+			{
+				Logger.DebugFormat("Blocks Orders because: Indicator.WhenCrossedZBar ({0})", whenCrossedZBar);
+				return;
+			}
+
 			var newOrder = Indicator.IsBarCrossedOnLastValue.Side == Sides.Buy
 				? this.BuyAtLimit(candle.ClosePrice)
 				: this.SellAtLimit(candle.ClosePrice);

@@ -15,6 +15,7 @@ namespace AK.CCI.Service.Indicators
 	public class CommodityChannelIndexExtended : CommodityChannelIndex
 	{
 		private const decimal HBar = 100;
+		private const decimal ZBar = 0;
 		private const decimal LBar = -100;
 
 		public event EventHandler<BarCrossedEventArgs> BarCrossed;
@@ -51,6 +52,47 @@ namespace AK.CCI.Service.Indicators
 		protected virtual void OnBarCrossed(BarCrossedEventArgs e)
 		{
 			BarCrossed?.Invoke(this, e);
+		}
+
+		/// <summary>
+		/// How many intervals ago the value crossed ZBar = 0 
+		/// </summary>
+		/// <value></value>
+		public int? WhenCrossedZBar
+		{
+			get
+			{
+				int? result = null;
+
+				if (Container.Count > Length)
+				{
+					var lastValue = this.GetCurrentValue();
+
+					for (int i = 1; i <= Container.Count - Length; i++)
+					{
+						var value = this.GetValue(i);
+
+						if (lastValue > ZBar)
+						{
+							if (value < ZBar)
+							{
+								result = i;
+								break;
+							}
+						}
+						else
+						{
+							if (value > ZBar)
+							{
+								result = i;
+								break;
+							}
+						}
+					}
+				}
+
+				return result;
+			}
 		}
 	}
 }
