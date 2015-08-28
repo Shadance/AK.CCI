@@ -57,7 +57,6 @@ namespace AK.CCI.Service
 					//.TryAdd(Level1Fields.MarginBuy, 100)
 					//.TryAdd(Level1Fields.MarginSell, 100);
 					
-
 					var portfolio = new Portfolio
 					{
 						Name = "SOMETHING",
@@ -68,9 +67,12 @@ namespace AK.CCI.Service
 						new[] { security },
 						new[] { portfolio })
 					{
-						// set history range
-						StartDate = startTime,
-						StopDate = stopTime,
+						HistoryMessageAdapter =
+						{
+							// set history range
+							StartDate = startTime,
+							StopDate = stopTime,
+						},
 
 						// set market time freq as time frame
 						MarketTimeChangedInterval = TimeSpan.FromMinutes(1)

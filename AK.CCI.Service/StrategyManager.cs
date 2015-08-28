@@ -1,14 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Net;
-using System.Security;
-using AK.CCI.Service.Settings;
-using Ecng.Common;
+﻿using AK.CCI.Service.Settings;
 using log4net;
-using StockSharp.Algo.Candles;
-using StockSharp.Algo.Strategies;
-using StockSharp.BusinessEntities;
-using StockSharp.Quik;
 
 namespace AK.CCI.Service
 {

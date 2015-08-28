@@ -13,7 +13,8 @@ namespace AK.CCI.Service.Settings
 			Bind<IConnectorManager>().To<QuikConnectorManager>().InSingletonScope();
 			//Bind<IConnectorManager>().To<QuikEmulationConnectorManager>().InSingletonScope();
 
-			Bind<IStrategy>().To<CCIStrategy>();
+			//Bind<IStrategy>().To<CCIStrategy>();
+			Bind<IStrategy>().To<QStrategy>();
 			Bind<IStrategyConfiguration>().To<StrategyConfiguration>();
 		}
 	}

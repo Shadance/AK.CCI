@@ -1,14 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Security;
 using System.Threading;
 using AK.CCI.Service.Settings;
 using Ecng.Common;
 using log4net;
 using StockSharp.Algo.Candles;
-using StockSharp.Algo.Candles.Compression;
-using StockSharp.Algo.Testing;
 using StockSharp.BusinessEntities;
 using StockSharp.Quik;
 
@@ -76,32 +72,33 @@ namespace AK.CCI.Service
 		}
 	}
 
-	public class QuikEmulationConnectorManager : QuikConnectorManager
-	{
-		public QuikEmulationConnectorManager(IConfiguration configuration) : base(configuration)
-		{
-		}
+	// As usual StockSharp author breaks everything in a new version
+	//public class QuikEmulationConnectorManager : QuikConnectorManager
+	//{
+	//	public QuikEmulationConnectorManager(IConfiguration configuration) : base(configuration)
+	//	{
+	//	}
 
-		public override IConnector Trader
-		{
-			get
-			{
-				if (_trader == null)
-				{
-					_trader = new RealTimeEmulationTrader<QuikTrader>(new QuikTrader()
-					{
-						LuaFixServerAddress = "127.0.0.1:5001".To<EndPoint>(),
-						LuaLogin = "quik",
-						LuaPassword = "quik".To<SecureString>()
-					});
+	//	public override IConnector Trader
+	//	{
+	//		get
+	//		{
+	//			if (_trader == null)
+	//			{
+	//				_trader = new RealTimeEmulationTrader<IMessageAdapter>(new QuikMessageAdapter(new MillisecondIncrementalIdGenerator()))
+	//				{
+	//					LuaFixServerAddress = "127.0.0.1:5001".To<EndPoint>(),
+	//					LuaLogin = "quik",
+	//					LuaPassword = "quik".To<SecureString>()
+	//				});
 
-					ConfigureConnector();
+	//				ConfigureConnector();
 
-					_trader.Connect();
-				}
+	//				_trader.Connect();
+	//			}
 
-				return _trader;
-			}
-		}
-	}
+	//			return _trader;
+	//		}
+	//	}
+	//}
 }

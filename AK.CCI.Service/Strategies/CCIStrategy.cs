@@ -168,7 +168,7 @@ namespace AK.CCI.Service
 			var now = this.CurrentTime;
 			foreach (var order in Orders.Where(o => o.IsMatchedEmpty()))
 			{
-				if (order.Time.Add(_strategyConfiguration.OrderExpirationTimeSpan) < CurrentTime)
+				if (order.Time.Add(_strategyConfiguration.OrderExpirationTimeSpan) < now)
 				{
 					CancelOrder(order);
 				}
