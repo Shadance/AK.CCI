@@ -2,6 +2,7 @@
 {
 	public interface IConfiguration
 	{
-		 
-	}
+        string Login { get; }
+        string Password { get; }
+    }
 }

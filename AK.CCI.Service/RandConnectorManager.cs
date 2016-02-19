@@ -11,6 +11,7 @@ using log4net;
 using StockSharp.Algo;
 using StockSharp.Algo.Candles;
 using StockSharp.Algo.Testing;
+//using StockSharp.Algo.Testing;
 using StockSharp.BusinessEntities;
 using StockSharp.Messages;
 using StockSharp.Quik;

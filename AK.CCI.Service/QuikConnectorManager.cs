@@ -7,18 +7,19 @@ using log4net;
 using StockSharp.Algo.Candles;
 using StockSharp.BusinessEntities;
 using StockSharp.Quik;
+using LogManager = log4net.LogManager;
 
 namespace AK.CCI.Service
 {
 	public class QuikConnectorManager : IConnectorManager
 	{
-		protected static readonly ILog Log = LogManager.GetLogger("AK.CCI.Service");
-		protected IConfiguration _configuration;
+	    protected static readonly ILog Log = LogManager.GetLogger("AK.CCI.Service");
 
-		protected IConnector _trader;
+        protected IConnector _trader;
 		protected CandleManager _candleManager;
+        protected IConfiguration _configuration;
 
-		public ManualResetEvent TraderConnectedEvent { get; } = new ManualResetEvent(false);
+        public ManualResetEvent TraderConnectedEvent { get; } = new ManualResetEvent(false);
 
 		public virtual IConnector Trader
 		{

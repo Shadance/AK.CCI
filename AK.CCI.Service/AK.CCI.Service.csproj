@@ -80,8 +80,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\StockSharp\References\Ecng\Ecng.Serialization.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
@@ -114,17 +114,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IStrategyManager.cs" />
+    <Compile Include="AlfaConnectorManager.cs" />
+    <Compile Include="Strategies\AKStrategy.cs" />
     <Compile Include="Strategies\QStrategy.cs" />
     <Compile Include="Strategies\CCIStrategy.cs" />
     <Compile Include="IConnectorManager.cs" />
     <Compile Include="Indicators\CommodityChannelIndexExtended.cs" />
-    <Compile Include="Strategies\IStrategy.cs" />
-    <Compile Include="IStrategyManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandConnectorManager.cs" />
     <Compile Include="QuikConnectorManager.cs" />
-    <Compile Include="Service.cs" />
     <Compile Include="Settings\Configuration.cs" />
     <Compile Include="Settings\DefaultModule.cs" />
     <Compile Include="Settings\IConfiguration.cs" />
@@ -142,28 +142,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\StockSharp\Algo\Algo.csproj">
-      <Project>{2a5c6fad-106c-4a4a-b602-77a6b1034ca2}</Project>
-      <Name>Algo</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\StockSharp\BusinessEntities\BusinessEntities.csproj">
-      <Project>{dce69db8-53ca-4b7f-9368-02f175a31074}</Project>
-      <Name>BusinessEntities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\StockSharp\Connectors\Quik\Quik.csproj">
-      <Project>{1B798A4E-2271-46F9-9C2D-4E563114E268}</Project>
-      <Name>Quik</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\StockSharp\Logging\Logging.csproj">
-      <Project>{c4476add-a3d5-41bb-9d43-55d865863b78}</Project>
-      <Name>Logging</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\StockSharp\Messages\Messages.csproj">
-      <Project>{b47f9c23-a4bd-46a9-bf27-54cb3d653503}</Project>
-      <Name>Messages</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.6 %28x86 and x64%29</ProductName>
@@ -174,6 +152,43 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\StockSharp\Algo\Algo.csproj">
+      <Project>{2a5c6fad-106c-4a4a-b602-77a6b1034ca2}</Project>
+      <Name>Algo</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\StockSharp\BusinessEntities\BusinessEntities.csproj">
+      <Project>{dce69db8-53ca-4b7f-9368-02f175a31074}</Project>
+      <Name>BusinessEntities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\StockSharp\Connectors\AlfaDirect\AlfaDirect.csproj">
+      <Project>{aaa445e0-aa85-4b49-ad45-edd1b4839137}</Project>
+      <Name>AlfaDirect</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\StockSharp\Connectors\Quik\QuikPublic.csproj">
+      <Project>{10758ef0-6659-4051-9563-854b048cc9d3}</Project>
+      <Name>QuikPublic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\StockSharp\Localization\Localization.csproj">
+      <Project>{a98a81ce-75a1-4fab-9c02-e6eef4b51f4f}</Project>
+      <Name>Localization</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\StockSharp\Logging\Logging.csproj">
+      <Project>{c4476add-a3d5-41bb-9d43-55d865863b78}</Project>
+      <Name>Logging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\StockSharp\Messages\Messages.csproj">
+      <Project>{b47f9c23-a4bd-46a9-bf27-54cb3d653503}</Project>
+      <Name>Messages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\StockSharp\Xaml\Xaml.csproj">
+      <Project>{64e4d6f0-36b6-4904-9ba7-fffbe5ff71d8}</Project>
+      <Name>Xaml</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

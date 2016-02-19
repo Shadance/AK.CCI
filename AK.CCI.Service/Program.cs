@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AK.CCI.Service.Settings;
+using AK.CCI.Service.Strategies;
 using Topshelf;
 using Topshelf.Ninject;
 
@@ -16,8 +17,14 @@ namespace AK.CCI.Service
 			HostFactory.Run(c =>
 			{
 				c.UseNinject(new DefaultModule());
+			    c.Service<IConnectorManager>(s =>
+			    {
+			        s.ConstructUsingNinject();
+			        s.WhenStarted(service => service.Start());
+			        s.WhenStopped(service => service.Stop());
+			    });
 
-				c.Service<Service>(s =>
+				c.Service<AKStrategy>(s =>
 				{
 					s.ConstructUsingNinject();
 					s.WhenStarted(service => service.Start());

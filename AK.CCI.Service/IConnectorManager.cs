@@ -3,7 +3,6 @@ using System.Threading;
 using StockSharp.Algo;
 using StockSharp.Algo.Candles;
 using StockSharp.BusinessEntities;
-using StockSharp.Quik;
 
 namespace AK.CCI.Service
 {
@@ -12,5 +11,5 @@ namespace AK.CCI.Service
 		ManualResetEvent TraderConnectedEvent { get; }
 		CandleManager CandleManager { get; }
 		IConnector Trader { get; }
-	}
+    }
 }

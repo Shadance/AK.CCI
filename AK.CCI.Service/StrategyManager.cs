@@ -1,33 +1,40 @@
 ﻿using AK.CCI.Service.Settings;
+using AK.CCI.Service.Strategies;
 using log4net;
+using StockSharp.BusinessEntities;
 
 namespace AK.CCI.Service
 {
 	public class StrategyManager : IStrategyManager
 	{
-		private static readonly ILog Log = LogManager.GetLogger("AK.CCI.Service");
 		private readonly IConfiguration _configuration;
-
-		private readonly IStrategy[] _strategies;
-
+		private readonly AKStrategy[] _strategies;
+	    private Portfolio   _portfolio;
+	    private Security _security;
+        
 		public StrategyManager(IConfiguration configuration,
-			IStrategy[] strategies)
+            AKStrategy[] strategies)
 		{
 			_configuration = configuration;
 			_strategies = strategies;
+            _portfolio  = new Portfolio();
+		    _security = new Security();
+
 		}
 
 		public void Start()
-		{
-			foreach (IStrategy s in _strategies)
+		{            
+            foreach (AKStrategy s in _strategies)
 			{
-				s.Start();
+                s.Portfolio = _portfolio;
+			    s.Security = _security;
+                s.Start();
 			}
 		}
 
 		public void Stop()
 		{
-			foreach (IStrategy s in _strategies)
+			foreach (AKStrategy s in _strategies)
 			{
 				s.Stop();
 			}
